@@ -1,6 +1,7 @@
 import math
 import rlbot.utils.structures.game_data_struct as game_data_struct
 from rlbot.agents.base_agent import BaseAgent, SimpleControllerState
+from tmcp import TMCPHandler, TMCPMessage, ActionType
 
 
 # This file holds all of the objects used in gosling utils
@@ -33,6 +34,9 @@ class GoslingAgent(BaseAgent):
         self.controller = SimpleControllerState()
         # a flag that tells us when kickoff is happening
         self.kickoff_flag = False
+        #communication between bots
+        self.tmcp_handler = TMCPHandler(self)
+        self.comms = {}
 
     def get_ready(self, packet):
         # Preps all of the objects that will be updated during play
@@ -99,12 +103,22 @@ class GoslingAgent(BaseAgent):
         self.preprocess(packet)
 
         self.renderer.begin_rendering()
+
+        # Receive and parse all new matchcomms messages into TMCPMessage objects.
+        new_comms = self.tmcp_handler.recv()
+        for comm in new_comms:
+            self.comms[comm.index] = (self.time, comm) #latest comm from each bot
+            print(self.comms[comm.index])
+
         # Run our strategy code
         self.run()
         # run the routine on the end of the stack
         if len(self.stack) > 0:
             self.stack[-1].run(self)
         self.renderer.end_rendering()
+
+
+
         # send our updated controller back to rlbot
         return self.controller
 

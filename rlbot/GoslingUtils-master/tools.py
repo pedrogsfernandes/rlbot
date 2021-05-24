@@ -111,3 +111,10 @@ def all_offside(agent, foes = False):
         if is_onside(agent, car, foes):
             return False
     return True
+
+def get_closest_boost(agent, boosts):
+    closest = boosts[0]
+    for boost in boosts:
+        if (boost.location - agent.me.location).magnitude() < (closest.location - agent.me.location).magnitude():
+            closest = boost
+    return closest
