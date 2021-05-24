@@ -13,19 +13,18 @@ class ExampleBot(GoslingAgent):
         close = (agent.me.location - agent.ball.location).magnitude() < 2000
         have_boost = agent.me.boost > 20
         # understand agent position in relation to ball
-        my_goal_to_ball, my_ball_distance = (agent.ball.location - agent.friend_goal.location).normalize(True)
-        goal_to_me = agent.me.location - agent.friend_goal.location
-        my_distance = my_goal_to_ball.dot(goal_to_me)
-        me_onside = my_distance - 200 < my_ball_distance
+        #my_goal_to_ball, my_ball_distance = (agent.ball.location - agent.friend_goal.location).normalize(True)
+        #goal_to_me = agent.me.location - agent.friend_goal.location
+        #my_distance = my_goal_to_ball.dot(goal_to_me)
+        #me_onside = my_distance - 200 < my_ball_distance
 
+        #foe_goal_to_ball, foe_ball_distance = (agent.ball.location - agent.foe_goal.location).normalize(True)
+        #foe_goal_to_foe = agent.foes[0].location - agent.foe_goal.location
+        #foe_distance = foe_goal_to_ball.dot(foe_goal_to_foe)
+        #foe_onside = foe_distance - 200 < foe_ball_distance
 
-        foe_goal_to_ball, foe_ball_distance = (agent.ball.location - agent.foe_goal.location).normalize(True)
-        foe_goal_to_foe = agent.foes[0].location - agent.foe_goal.location
-        foe_distance = foe_goal_to_ball.dot(foe_goal_to_foe)
-        foe_onside = foe_distance - 200 < foe_ball_distance
-
-       
-
+        me_onside = is_onside(agent, agent.me)
+        foe_onside = is_onside(agent, agent.foes[0], is_foe=True)
         return_to_goal = False
         if len(agent.stack) < 1:
             if agent.kickoff_flag:

@@ -78,3 +78,36 @@ def find_hits(agent,targets):
         else:
             i += 1
     return hits
+
+
+def is_onside(agent, car, is_foe = False):
+    if is_foe:
+        goal = agent.foe_goal
+    else:
+        goal = agent.friend_goal
+    goal_to_ball, ball_distance = (agent.ball.location - goal.location).normalize(True)
+    goal_to_me = car.location - goal.location
+    distance = goal_to_ball.dot(goal_to_me)
+    return distance - 200 < ball_distance
+
+
+def all_onside(agent, foes = False):
+    if foes:
+        cars = agent.foes
+    else:
+        cars = agent.friends
+    for car in cars:
+        if not is_onside(agent, car, foes):
+            return False
+    return True
+
+
+def all_offside(agent, foes = False):
+    if foes:
+        cars = agent.foes
+    else:
+        cars = agent.friends
+    for car in cars:
+        if is_onside(agent, car, foes):
+            return False
+    return True
