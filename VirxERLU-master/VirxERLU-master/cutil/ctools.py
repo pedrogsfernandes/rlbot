@@ -63,6 +63,27 @@ def all_offside(agent, foes = False):
             return False
     return True
 
+def all_friends_getting_boost(agent):
+    for _, comm in list(agent.comms.values()):
+        if comm.get('action') != "BOOST":
+            return False
+    return True
+
+def all_friends_occupied(agent):
+    occupied = [False for i in range(3)]
+    for _, comm in list(agent.comms.values()):
+        if comm.get('action') == "BOOST":
+            occupied[comm.get('index')] = True
+    cars = agent.friends
+    for car in cars:
+        if not is_onside(agent, car):
+            occupied[car.index] = True
+
+    for car in cars:
+        if not occupied[car.index]:
+            return False
+    return True
+
 
 def get_closest_boost(agent, boosts):
     closest = boosts[0]

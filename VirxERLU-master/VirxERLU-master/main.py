@@ -27,7 +27,7 @@ class Bot(VirxERLU):
 
             elif self.is_clear() and ctools.is_closest_to(self, self.friend_goal):
                 self.kickoff_done = True
-                self.push(routines.retreat())
+                self.goto_nearest_boost()
                 return
 
             elif self.is_clear():
@@ -37,6 +37,16 @@ class Bot(VirxERLU):
 
         # how many friends we have (not including ourself!)
         num_friends = len(self.friends)
+
+        #If all friends are getting boost or offside
+        if ctools.all_friends_occupied(self):
+            if self.is_clear():
+                self.push(routines.retreat())
+
+            # we've made our decision and we don't want to run anything else
+            if not self.is_clear():
+                return
+
 
         # If we have friends and we have less than 36 boost and the no boost mutator isn't active
         # We have allies that can back us up, so let's be more greedy when getting boost
