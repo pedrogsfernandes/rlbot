@@ -68,7 +68,9 @@ class Bot(VirxERLU):
                 shot = tools.find_shot(self, self.foe_goal_shot)
 
             # if the ball is on our half, get it out
-            if shot is None and self.ball.location.y * utils.side(self.team) > 600:
+            if shot is None and self.ball.location.y * utils.side(self.team) > 1500\
+                    and self.ball.location.x > -2500\
+                    and self.ball.location.x < 2500:
                 shot = tools.find_shot(self,(self.friend_goal.right_post + Vector(utils.side(self.team) * 200, 0, 0), self.friend_goal.left_post + Vector(utils.side(self.team) * 200, 0, 0)))
 
             # TODO Using an anti-target here could be cool - do to this, pass in a target tuple that's (right_target, left_target) (instead of (left, right)) into tools.find_shot (NOT tools.find_any_shot)
