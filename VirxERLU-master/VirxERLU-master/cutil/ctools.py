@@ -104,10 +104,12 @@ def all_friends_occupied(agent):
 
 
 def ball_being_targeted(agent):
-    occupied = [False for i in range(3)]
+    occupied = {}
     for _, comm in list(agent.comms.values()):
-        if comm.get('action').get('type') == "BALL":
+         if comm.get('action').get('type') == "BALL":
             occupied[comm.get('index')] = True
+        else:
+            occupied[comm.get('index')] = False
     cars = agent.friends
     for car in cars:
         if occupied[car.index]:
