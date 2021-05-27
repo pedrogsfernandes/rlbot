@@ -12,25 +12,26 @@ def distance_to_goal(agent):
 def shooting_angle(agent, car):
     ball_to_goal:Vector = agent.foe_goal.location - agent.ball.location
     ball_to_player:Vector = car.location - agent.ball.location
-    return ball_to_goal.angle2D(ball_to_player)
+    return math.degrees(ball_to_goal.angle2D(ball_to_player))
 
 def angle_car_ball_point(agent, car, point):
     ball_to_point:Vector = point - agent.ball.location
     ball_to_player:Vector = car.location - agent.ball.location
-    return ball_to_point.angle2D(ball_to_player)
+    return math.degrees(ball_to_point.angle2D(ball_to_player))
 
 def ball_to_foe_goal(agent):
     return (agent.foe_goal.location - agent.ball.location).magnitude()
 
 def get_pass_location(agent:VirxERLU, car):
-    field_side = utils.sign(car.location.x)
+    field_side = utils.sign(agent.ball.location.x)
     if field_side == 0:
         field_side = 1
-    new_target = agent.ball.location - Vector(3500*field_side, 0,0)
+    new_target = agent.ball.location - Vector(-3500*field_side, 0,0)
     new_target.y = -utils.side(agent.team)*2500
     new_target.z = 300
 
-    if angle_car_ball_point(agent, car, new_target) < math.pi/2:
+    if angle_car_ball_point(agent, car, new_target) < 60:
+        #too tight to pass
         bounds = None
     else:
         left_bound = new_target - utils.side(agent.team)*Vector(200,0,0)
@@ -84,10 +85,13 @@ def all_friends_getting_boost(agent):
 
 
 def all_friends_occupied(agent):
-    occupied = [False for i in range(3)]
+    occupied = {}
     for _, comm in list(agent.comms.values()):
         if comm.get('action').get('type') == "BOOST":
             occupied[comm.get('index')] = True
+        else:
+            occupied[comm.get('index')] = False
+
     cars = agent.friends
     for car in cars:
         if not is_onside(agent, car):
@@ -126,6 +130,12 @@ def is_friend_doing_action(agent, action):
             return True
     return False
 
+def get_friend_action(agent, index):
+    for _, comm in list(agent.comms.values()):
+        if comm.get('index') == index:
+            return comm.get('action')
+    return None
+
 
 def is_friend_getting_boost(agent, index):
     # For attacking, for example, action = ActionType.BALL
@@ -137,15 +147,16 @@ def is_friend_getting_boost(agent, index):
 def get_friend_shooting(agent:VirxERLU):
     # For attacking, for example, action = ActionType.BALL
     index = -1
-    
+    action = None
     for _, comm in list(agent.comms.values()):
         if comm.get('action').get('type') == ActionType.BALL.name:
             index = comm.get('index')
+            action = comm.get('action')
             break
     for car in agent.friends:
         if car.index == index:
-            return car
-    return None
+            return car, action
+    return None, None
 
 
 
@@ -160,6 +171,36 @@ def is_closest_to(agent, point):
         if car_to_point < my_distance:
             return False
     return True
+
+def should_attack_ball(agent: VirxERLU):
+    my_distance = (agent.me.location - agent.ball.location).magnitude()
+    me_onside = is_onside(agent, agent.me)
+    for car in agent.friends:
+        car_to_ball = (car.location - agent.ball.location).magnitude()
+        car_action = get_friend_action(agent, car.index)
+        if car_action == None:
+            car_action = 'READY'
+        else:
+            car_action = car_action.get('type')
+        if car_action in ('READY') and (car_to_ball < my_distance or (not me_onside and is_onside(agent, car) and car_to_ball < my_distance + 700)):
+            return False
+    return True
+
+def should_retreat(agent: VirxERLU):
+    my_distance = (agent.me.location - agent.friend_goal.location).magnitude()
+    if agent.is_shooting:
+        return False
+    for car in agent.friends:
+        car_to_goal = (car.location - agent.friend_goal.location).magnitude()
+        car_action = get_friend_action(agent, car.index)
+        if car_action == None:
+            car_action = 'READY'
+        else:
+            car_action = car_action.get('type')
+        if car_action not in ('BALL') and (car_to_goal < my_distance):
+            return False
+    return True
+
 
 
 def get_closest_friend_to_ball(agent):
