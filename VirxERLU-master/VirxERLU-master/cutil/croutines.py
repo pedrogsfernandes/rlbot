@@ -21,7 +21,6 @@ class get_in_position:
         self.deltatime = 0
 
     def run(self, agent:VirxERLU):
-        target = self.target
 
         self.deltatime += agent.delta_time
         if self.deltatime >= self.poptime:

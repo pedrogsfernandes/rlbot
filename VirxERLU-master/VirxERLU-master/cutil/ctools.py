@@ -33,8 +33,12 @@ def get_pass_location(agent:VirxERLU, car):
     if angle_car_ball_point(agent, car, new_target) < math.pi/2:
         bounds = None
     else:
-        left_bound = new_target - utils.side(agent.team)*Vector(200,0,0)
-        right_bound = new_target + utils.side(agent.team)*Vector(200,0,0)
+        if not is_onside(agent, car):
+            anti = -1
+        else:
+            anti = 1
+        left_bound = new_target - anti*utils.side(agent.team)*Vector(200,0,0)
+        right_bound = new_target + anti*utils.side(agent.team)*Vector(200,0,0)
         bounds = tuple([left_bound, right_bound])
 
     return bounds, new_target

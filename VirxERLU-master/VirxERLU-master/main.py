@@ -1,5 +1,5 @@
 from util import routines, tools, utils
-from cutil import ctools
+from cutil import ctools, croutines
 from util.agent import Vector, VirxERLU, run_bot
 
 
@@ -65,6 +65,14 @@ class Bot(VirxERLU):
             if self.ball.location.y * utils.side(self.team) < 640 and not ctools.ball_being_targeted(self):
                 # Find a shot, on target - double_jump, jump_shot, and ground_shot are automatically disabled if we're airborne
                 shot = tools.find_shot(self, self.foe_goal_shot)
+            elif ctools.ball_being_targeted(self):
+                car, action = ctools.get_friend_shooting(self)
+                if car is not None:
+                    _, target = ctools.get_pass_location(self, car)
+                    if self.is_clear():
+                        print("To position" + str(target))
+                        self.push(croutines.get_in_position(self, target, action.get('time')))
+                        return
 
             # if the ball is on our half, get it out
             if shot is None and self.ball.location.y * utils.side(self.team) > 1500\
