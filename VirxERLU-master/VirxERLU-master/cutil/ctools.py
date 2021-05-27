@@ -58,6 +58,13 @@ def n_friends_attacking(agent):
             i += 1
     return i
 
+def n_friends_offside(agent):
+    i = 0
+    for car in (agent.friends):
+        if not is_onside(agent, car):
+            i += 1
+    return i
+
 def all_offside(agent, foes = False):
     if foes:
         cars = agent.foes

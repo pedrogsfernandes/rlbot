@@ -46,7 +46,8 @@ class Bot(VirxERLU):
 
         # If we have friends and we have less than 36 boost and the no boost mutator isn't active
         # We have allies that can back us up, so let's be more greedy when getting boost
-        if num_friends > 0 and self.me.boost < 36 and self.boost_amount != "no boost":
+        if num_friends > 0 and self.me.boost < 36 and self.boost_amount != "no boost" \
+                and ctools.n_friends_offside(self) < 2:
             # If the stack is clear
             if self.is_clear():
                 # goto the nearest boost
