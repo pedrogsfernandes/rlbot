@@ -155,9 +155,9 @@ class Bot(VirxERLU):
             self.clear()
 
     def handle_tmcp_packet(self, packet):
-        super().handle_tmcp_packet(packet)
-
-        self.print(packet)
+        if packet.get('team') is self.team:
+            self.print(packet)
+            self.comms[packet.get('index')] = (self.time, packet)
 
     def handle_match_comm(self, msg):
         # NOTE This is for handling any incoming match communications

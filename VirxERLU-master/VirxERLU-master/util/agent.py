@@ -104,7 +104,7 @@ class VirxERLU(StandaloneBot):
             "rumble",
             "heatseeker"
         )
-
+        self.comms = {}
         self.gravity = gravity[mutators.GravityOption()]
         self.boost_accel = boost_accel[mutators.BoostStrengthOption()]
         self.boost_amount = boost_amount[mutators.BoostOption()]
