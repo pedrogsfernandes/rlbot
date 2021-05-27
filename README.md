@@ -12,9 +12,9 @@ João Serras - 89478
 Pedro Fernandes - 89516
 
 
-# how to run the project
+# How to run the project
 
-## requirements
+## Requirements
 - Install rocket league
 - Install RLBotGUI (https://rlbot.org/)
 - Install python packages:
@@ -22,7 +22,7 @@ Pedro Fernandes - 89516
   - tmcp
   - numpy
 
-## running the project
+## Running the project
 - Open RLBotGUI
 - Select teamBot
 - Select an opponent (Psyonix Pro)
