@@ -99,6 +99,18 @@ def all_friends_occupied(agent):
     return True
 
 
+def ball_being_targeted(agent):
+    occupied = [False for i in range(3)]
+    for _, comm in list(agent.comms.values()):
+        if comm.get('action').get('type') == "BALL":
+            occupied[comm.get('index')] = True
+    cars = agent.friends
+    for car in cars:
+        if occupied[car.index]:
+            return True
+    return False
+
+
 def get_closest_boost(agent, boosts):
     closest = boosts[0]
     for boost in boosts:

@@ -40,7 +40,6 @@ class Bot(VirxERLU):
         #If all friends are getting boost or offside
         if ctools.all_friends_occupied(self):
             if self.is_clear():
-                print("ALL FRIENDS OCCUPIED\n")
                 self.push(routines.retreat())
 
 
@@ -63,20 +62,20 @@ class Bot(VirxERLU):
 
             # TODO we might miss the net, even when using a target - make a pair of targets that are small than the goal so we have a better chance of scoring!
             # If the ball is on the enemy's side of the field, or slightly on our side
-            if self.ball.location.y * utils.side(self.team) < 640:
+            if self.ball.location.y * utils.side(self.team) < 640 and not ctools.ball_being_targeted(self) and ctools.is_closest_to(self,self.ball):
                 # Find a shot, on target - double_jump, jump_shot, and ground_shot are automatically disabled if we're airborne
                 shot = tools.find_shot(self, self.foe_goal_shot)
 
             # if the ball is on our half, get it out
             if shot is None and self.ball.location.y * utils.side(self.team) > 1500\
                     and self.ball.location.x > -2500\
-                    and self.ball.location.x < 2500:
+                    and self.ball.location.x < 2500 and not ctools.ball_being_targeted(self) and ctools.is_closest_to(self,self.ball):
                 shot = tools.find_shot(self,(self.friend_goal.right_post + Vector(utils.side(self.team) * 200, 0, 0), self.friend_goal.left_post + Vector(utils.side(self.team) * 200, 0, 0)))
 
             # TODO Using an anti-target here could be cool - do to this, pass in a target tuple that's (right_target, left_target) (instead of (left, right)) into tools.find_shot (NOT tools.find_any_shot)
             # TODO When possible, we might want to take a little bit more time to shot the ball anywhere in the opponent's end - this target should probably be REALLY LONG AND HIGH!
             # If we're behind the ball and we couldn't find a shot on target
-            if shot is None and self.ball.location.y * utils.side(self.team) < self.me.location.y * utils.side(self.team):
+            if shot is None and self.ball.location.y * utils.side(self.team) < self.me.location.y * utils.side(self.team) and not ctools.ball_being_targeted(self) and ctools.is_closest_to(self,self.ball):
                 # Find a shot, but without a target - double_jump, jump_shot, and ground_shot are automatically disabled if we're airborne
                 shot = tools.find_any_shot(self)
 
@@ -157,7 +156,7 @@ class Bot(VirxERLU):
             # Get the closest boost
             closest_boost = min(boosts, key=lambda boost: boost.location.dist(self.me.location))
             # Goto the nearest boost
-            if not ctools.is_friend_getting_boost(self, closest_boost):
+            if not ctools.is_friend_getting_boost(self, closest_boost) and (closest_boost.location.dist(self.me.location) < 3500):
                 self.push(routines.goto_boost(closest_boost))
 
 
@@ -172,7 +171,7 @@ class Bot(VirxERLU):
 
     def handle_tmcp_packet(self, packet):
         if packet.get('team') is self.team:
-            self.print(packet)
+            #self.print(packet)
             self.comms[packet.get('index')] = (self.time, packet)
 
     def handle_match_comm(self, msg):
