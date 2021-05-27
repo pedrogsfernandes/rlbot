@@ -141,15 +141,17 @@ def is_friend_getting_boost(agent, index):
 def get_friend_shooting(agent:VirxERLU):
     # For attacking, for example, action = ActionType.BALL
     index = -1
-    
+    car = None
+    action = None
     for _, comm in list(agent.comms.values()):
         if comm.get('action').get('type') == ActionType.BALL.name:
             index = comm.get('index')
+            action = comm.get('action')
             break
     for car in agent.friends:
         if car.index == index:
-            return car
-    return None
+            return car, action
+    return car, action
 
 
 

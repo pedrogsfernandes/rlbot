@@ -70,7 +70,6 @@ class Bot(VirxERLU):
                 if car is not None:
                     _, target = ctools.get_pass_location(self, car)
                     if self.is_clear():
-                        print("To position" + str(target))
                         self.push(croutines.get_in_position(self, target, action.get('time')))
                         return 
                 else:
