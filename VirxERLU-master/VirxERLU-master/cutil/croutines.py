@@ -17,7 +17,6 @@ class get_in_position:
             self.poptime = 1
         else:
             self.poptime = poptime - agent.time
-        print(poptime)
         self.deltatime = 0
 
     def run(self, agent:VirxERLU):

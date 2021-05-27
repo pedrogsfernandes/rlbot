@@ -123,6 +123,7 @@ def get_closest_boost(agent, boosts):
     return closest
 
 
+
 def is_friend_doing_action(agent, action):
     # For attacking, for example, action = ActionType.BALL
     for _, comm in list(agent.comms.values()):
@@ -185,6 +186,35 @@ def get_closest_friend_to_ball(agent):
     return closest_car, closest_distance, all_off
 
 
+def should_attack_ball(agent: VirxERLU):
+    my_distance = (agent.me.location - agent.ball.location).magnitude()
+    me_onside = is_onside(agent, agent.me)
+    for car in agent.friends:
+        car_to_ball = (car.location - agent.ball.location).magnitude()
+        car_action = get_friend_action(agent, car.index)
+        if car_action == None:
+            car_action = 'READY'
+        else:
+            car_action = car_action.get('type')
+        if car_action in ('READY') and (car_to_ball < my_distance or (not me_onside and is_onside(agent, car) and car_to_ball < my_distance + 700)):
+            return False
+    return True
+
+def should_retreat(agent: VirxERLU):
+    my_distance = (agent.me.location - agent.friend_goal.location).magnitude()
+    if agent.is_shooting:
+        return False
+    for car in agent.friends:
+        car_to_goal = (car.location - agent.friend_goal.location).magnitude()
+        car_action = get_friend_action(agent, car.index)
+        if car_action == None:
+            car_action = 'READY'
+        else:
+            car_action = car_action.get('type')
+        if car_action not in ('BALL') and (car_to_goal < my_distance):
+            return False
+    return True
+
 def get_furthest_friend_to_ball(agent):
     all_off = True
     longest_distance = -1
@@ -235,3 +265,9 @@ def get_closest_foe_to_car(agent):
             closest_distance = distance_to_me
             closest_car = car
     return closest_car, closest_distance
+
+def get_friend_action(agent, index):
+    for _, comm in list(agent.comms.values()):
+        if comm.get('index') == index:
+            return comm.get('action')
+    return None

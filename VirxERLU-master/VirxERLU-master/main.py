@@ -46,7 +46,7 @@ class Bot(VirxERLU):
         # If we have friends and we have less than 36 boost and the no boost mutator isn't active
         # We have allies that can back us up, so let's be more greedy when getting boost
         if num_friends > 0 and self.me.boost < 36 and self.boost_amount != "no boost" \
-                and ctools.n_friends_offside(self) < 2:
+                and ctools.n_friends_offside(self) < 2 and not ctools.should_attack_ball(self):
             # If the stack is clear
             if self.is_clear():
                 # goto the nearest boost
@@ -65,22 +65,27 @@ class Bot(VirxERLU):
             if self.ball.location.y * utils.side(self.team) < 640 and not ctools.ball_being_targeted(self):
                 # Find a shot, on target - double_jump, jump_shot, and ground_shot are automatically disabled if we're airborne
                 shot = tools.find_shot(self, self.foe_goal_shot)
-            elif ctools.ball_being_targeted(self):
+            elif ctools.ball_being_targeted(self) and ctools.should_retreat(self):
+                if self.is_clear():
+                    self.push(croutines.back_to_midfield(self))
+                    return
+            elif ctools.ball_being_targeted(self):#gajo que ta a rematar nao tem angulo para passe
                 car, action = ctools.get_friend_shooting(self)
                 if car is not None:
                     _, target = ctools.get_pass_location(self, car)
                     if self.is_clear():
                         self.push(croutines.get_in_position(self, target, action.get('time')))
                         return 
-                else:
-                    self.push(croutines.get_in_position(self, Vector(0,0,0), 1))
+                elif self.is_clear():
+                    self.push(croutines.get_in_position(self, Vector(0,util.side(self.team)*-500,0), 1))
+                    return
 
 
             # if the ball is on our half, get it out
             if shot is None and self.ball.location.y * utils.side(self.team) > 1500\
                     and self.ball.location.x > -2500\
-                    and self.ball.location.x < 2500 and not ctools.ball_being_targeted(self) :
-                shot = tools.find_shot(self,(self.friend_goal.right_post + Vector(utils.side(self.team) * 200, 0, 0), self.friend_goal.left_post + Vector(utils.side(self.team) * 200, 0, 0)))
+                    and self.ball.location.x < 2500:
+                shot = tools.find_shot(self,(self.friend_goal.right_post + Vector(utils.side(self.team) * 400, 0, 0), self.friend_goal.left_post + Vector(utils.side(self.team) * 400, 0, 0)))
 
             # TODO Using an anti-target here could be cool - do to this, pass in a target tuple that's (right_target, left_target) (instead of (left, right)) into tools.find_shot (NOT tools.find_any_shot)
             # TODO When possible, we might want to take a little bit more time to shot the ball anywhere in the opponent's end - this target should probably be REALLY LONG AND HIGH!
