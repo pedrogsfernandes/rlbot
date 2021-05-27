@@ -72,7 +72,10 @@ class Bot(VirxERLU):
                     if self.is_clear():
                         print("To position" + str(target))
                         self.push(croutines.get_in_position(self, target, action.get('time')))
-                        return
+                        return 
+                else:
+                    self.push(croutines.get_in_position(self, Vector(0,0,0), 1))
+
 
             # if the ball is on our half, get it out
             if shot is None and self.ball.location.y * utils.side(self.team) > 1500\
