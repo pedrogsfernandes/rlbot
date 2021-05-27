@@ -41,11 +41,8 @@ class Bot(VirxERLU):
         #If all friends are getting boost or offside
         if ctools.all_friends_occupied(self):
             if self.is_clear():
+                print("ALL FRIENDS OCCUPIED\n")
                 self.push(routines.retreat())
-
-            # we've made our decision and we don't want to run anything else
-            if not self.is_clear():
-                return
 
 
         # If we have friends and we have less than 36 boost and the no boost mutator isn't active
@@ -69,6 +66,10 @@ class Bot(VirxERLU):
             if self.ball.location.y * utils.side(self.team) < 640:
                 # Find a shot, on target - double_jump, jump_shot, and ground_shot are automatically disabled if we're airborne
                 shot = tools.find_shot(self, self.foe_goal_shot)
+
+            # if the ball is on our half, get it out
+            if shot is None and self.ball.location.y * utils.side(self.team) > 640:
+                shot = tools.find_shot(self,(self.friend_goal.right_post, self.friend_goal.left_post))
 
             # TODO Using an anti-target here could be cool - do to this, pass in a target tuple that's (right_target, left_target) (instead of (left, right)) into tools.find_shot (NOT tools.find_any_shot)
             # TODO When possible, we might want to take a little bit more time to shot the ball anywhere in the opponent's end - this target should probably be REALLY LONG AND HIGH!
