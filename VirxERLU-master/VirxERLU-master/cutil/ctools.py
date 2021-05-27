@@ -1,3 +1,4 @@
+from tmcp.message import ActionType
 from util.agent import VirxERLU, Vector
 from util import utils
 import math
@@ -14,25 +15,29 @@ def shooting_angle(agent, car):
     return ball_to_goal.angle2D(ball_to_player)
 
 def angle_car_ball_point(agent, car, point):
-    ball_to_point:Vector = point.location - agent.ball.location
+    ball_to_point:Vector = point - agent.ball.location
     ball_to_player:Vector = car.location - agent.ball.location
     return ball_to_point.angle2D(ball_to_player)
 
 def ball_to_foe_goal(agent):
     return (agent.foe_goal.location - agent.ball.location).magnitude()
 
-def get_pass_location(agent:VirxERLU):
-    field_side = utils.sign(agent.me.location.x)
+def get_pass_location(agent:VirxERLU, car):
+    field_side = utils.sign(car.location.x)
     if field_side == 0:
         field_side = 1
-    new_target = agent.ball.location - (3500*field_side, 0,0)
+    new_target = agent.ball.location - Vector(3500*field_side, 0,0)
     new_target.y = -utils.side(agent.team)*2500
     new_target.z = 300
 
-    if angle_car_ball_point(agent, agent.me, new_target) < math.pi/2:
-        return None
+    if angle_car_ball_point(agent, car, new_target) < math.pi/2:
+        bounds = None
     else:
-        pass
+        left_bound = new_target - utils.side(agent.team)*Vector(200,0,0)
+        right_bound = new_target + utils.side(agent.team)*Vector(200,0,0)
+        bounds = tuple([left_bound, right_bound])
+
+    return bounds, new_target
 
     
 
@@ -92,25 +97,39 @@ def get_closest_boost(agent, boosts):
             closest = boost
     return closest
 
-def any_friend_shooting(agent):
-    for car in agent.friends:
-        if car.shooting:
-            return True
-    return False
+
 
 def is_friend_doing_action(agent, action):
     # For attacking, for example, action = ActionType.BALL
     for _, comm in list(agent.comms.values()):
-        if comm.get('action') == action:
+        if comm.get('action').get('type') == action.name:
             return True
     return False
+
 
 def is_friend_getting_boost(agent, index):
     # For attacking, for example, action = ActionType.BALL
     for _, comm in list(agent.comms.values()):
         if comm.get('action') == "BOOST" and comm.get('target') == index:
+        #if comm.get('action').get('type') == "BOOST" and comm.get('action').get('target') == index: acho que deves querer isto
+
             return True
     return False
+
+def get_friend_shooting(agent:VirxERLU):
+    # For attacking, for example, action = ActionType.BALL
+    index = -1
+    
+    for _, comm in list(agent.comms.values()):
+        if comm.get('action').get('type') == ActionType.BALL.name:
+            index = comm.get('index')
+            break
+    for car in agent.friends:
+        if car.index == index:
+            return car
+    return None
+
+
 
 def distance_to(agent, point):
     return (agent.me.location - point.location).magnitude()
