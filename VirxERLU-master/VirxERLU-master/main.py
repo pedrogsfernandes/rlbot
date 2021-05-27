@@ -144,7 +144,10 @@ class Bot(VirxERLU):
             # Get the closest boost
             closest_boost = min(boosts, key=lambda boost: boost.location.dist(self.me.location))
             # Goto the nearest boost
-            self.push(routines.goto_boost(closest_boost))
+            if not ctools.is_friend_getting_boost(self, closest_boost):
+                self.push(routines.goto_boost(closest_boost))
+
+
 
     def demolished(self):
         # NOTE This method is ran every tick that your bot it demolished

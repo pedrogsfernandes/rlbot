@@ -84,6 +84,13 @@ def is_friend_doing_action(agent, action):
             return True
     return False
 
+def is_friend_getting_boost(agent, index):
+    # For attacking, for example, action = ActionType.BALL
+    for _, comm in list(agent.comms.values()):
+        if comm.get('action') == "BOOST" and comm.get('target') == index:
+            return True
+    return False
+
 def distance_to(agent, point):
     return (agent.me.location - point.location).magnitude()
 
