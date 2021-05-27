@@ -1,4 +1,5 @@
-from util import routines, tools, utils, custom_routines, custom_tools, custom_utils
+from util import routines, tools, utils
+from cutil import ctools
 from util.agent import Vector, VirxERLU, run_bot
 
 
@@ -19,16 +20,20 @@ class Bot(VirxERLU):
     def run(self):
         # NOTE This method is ran every tick
 
-        # If the kickoff isn't done
         if not self.kickoff_done:
-            # If the stack is clear
-            if self.is_clear():
-                # Push a generic kickoff to the stack
-                # TODO make kickoff routines for each of the 5 kickoffs positions
+            if self.is_clear() and ctools.is_closest_to(self, self.ball):
                 self.push(routines.generic_kickoff())
+                return
 
-            # we don't want to do anything else during our kickoff
-            return
+            elif self.is_clear() and ctools.is_closest_to(self, self.friend_goal):
+                self.kickoff_done = True
+                self.push(routines.retreat())
+                return
+
+            elif self.is_clear():
+                self.kickoff_done = True
+                self.goto_nearest_boost()
+                return
 
         # how many friends we have (not including ourself!)
         num_friends = len(self.friends)
