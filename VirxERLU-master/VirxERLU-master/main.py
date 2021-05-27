@@ -31,8 +31,7 @@ class Bot(VirxERLU):
                 return
 
             elif self.is_clear():
-                self.kickoff_done = True
-                self.goto_nearest_boost()
+                self.push(routines.generic_kickoff())
                 return
 
         # how many friends we have (not including ourself!)
@@ -69,7 +68,7 @@ class Bot(VirxERLU):
 
             # if the ball is on our half, get it out
             if shot is None and self.ball.location.y * utils.side(self.team) > 640:
-                shot = tools.find_shot(self,(self.friend_goal.right_post, self.friend_goal.left_post))
+                shot = tools.find_shot(self,(self.friend_goal.right_post + Vector(-self.team * 200, 0, 0), self.friend_goal.left_post + Vector(self.team * 200, 0, 0)))
 
             # TODO Using an anti-target here could be cool - do to this, pass in a target tuple that's (right_target, left_target) (instead of (left, right)) into tools.find_shot (NOT tools.find_any_shot)
             # TODO When possible, we might want to take a little bit more time to shot the ball anywhere in the opponent's end - this target should probably be REALLY LONG AND HIGH!
