@@ -211,8 +211,6 @@ def should_attack_ball(agent: VirxERLU):
 
 def should_retreat(agent: VirxERLU):
     my_distance = (agent.me.location - agent.friend_goal.location).magnitude()
-    if agent.is_shooting:
-        return False
     for car in agent.friends:
         car_to_goal = (car.location - agent.friend_goal.location).magnitude()
         car_action = get_friend_action(agent, car.index)
@@ -220,6 +218,7 @@ def should_retreat(agent: VirxERLU):
             car_action = 'READY'
         else:
             car_action = car_action.get('type')
+        
         if car_action not in ('BALL') and (car_to_goal < my_distance):
             return False
     return True

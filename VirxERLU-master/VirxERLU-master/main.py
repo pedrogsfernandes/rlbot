@@ -37,6 +37,36 @@ class Bot(VirxERLU):
 
             # how many friends we have (not including ourself!)
             num_friends = len(self.friends)
+            if ctools.all_offside(self,True):
+                 shot = tools.find_shot(self, self.foe_goal_shot)
+                 # If we found a  
+                 if shot is not None:
+                    # If the stack is clear
+                    if self.is_clear():
+                        # Shoot
+                        self.push(shot)
+                        return
+                    # If the stack isn't clear
+                    else:
+                        # Get the current shot's name (ex jump_shot, double_jump, ground_shot or Aerial) as a string
+                        current_shot_name = self.stack[0].__class__.__name__
+                        # Get the new shot's name as a string
+                        new_shot_name = shot.__class__.__name__
+
+                        # If the shots are the same type
+                        if new_shot_name is current_shot_name:
+                            # Update the existing shot with the new information
+                            self.stack[0].update(shot)
+                        # If the shots are of different types
+                        else:
+                            # Clear the stack
+                            self.clear()
+                            # Shoot
+                            self.push(shot)
+
+                    # we've made our decision and we don't want to run anything else
+                    return
+
 
             #If all friends are getting boost or offside
             if ctools.all_friends_occupied(self):
@@ -60,7 +90,6 @@ class Bot(VirxERLU):
             # if the stack is clear, then run the following - otherwise, if the stack isn't empty, then look for a shot every 4th tick while the other routine is running
             if self.is_clear() or self.odd_tick == 0:
                 shot = None
-
                 # TODO we might miss the net, even when using a target - make a pair of targets that are small than the goal so we have a better chance of scoring!
                 # If the ball is on the enemy's side of the field, or slightly on our side
                 if self.ball.location.y * utils.side(self.team) < 640 and not ctools.ball_being_targeted(self):
@@ -68,7 +97,7 @@ class Bot(VirxERLU):
                     shot = tools.find_shot(self, self.foe_goal_shot)
                 elif  self.ball.location.y * utils.side(self.team) < 640 and ctools.ball_being_targeted(self) and ctools.should_retreat(self):
                     if self.is_clear():
-                        self.push(croutines.back_to_midfield(self))
+                        self.push(routines.shadow())
                         return
                 elif self.ball.location.y * utils.side(self.team) < 640 and ctools.ball_being_targeted(self):#gajo que ta a rematar nao tem angulo para passe
                     car, action = ctools.get_friend_shooting(self)
@@ -87,6 +116,7 @@ class Bot(VirxERLU):
                         and self.ball.location.x > -2500\
                         and self.ball.location.x < 2500:
                     shot = tools.find_shot(self,(self.friend_goal.right_post + Vector(utils.side(self.team) * 400, 0, 0), self.friend_goal.left_post + Vector(utils.side(self.team) * 400, 0, 0)))
+
 
                 # TODO Using an anti-target here could be cool - do to this, pass in a target tuple that's (right_target, left_target) (instead of (left, right)) into tools.find_shot (NOT tools.find_any_shot)
                 # TODO When possible, we might want to take a little bit more time to shot the ball anywhere in the opponent's end - this target should probably be REALLY LONG AND HIGH!
