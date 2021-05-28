@@ -87,6 +87,15 @@ def all_friends_getting_boost(agent):
     return True
 
 
+def n_friends_shooting(agent):
+	i = 0
+	for _, comm in list(agent.comms.values()):
+		if comm.get('action').get('type') == "BALL":
+			i = i+1
+	return i
+
+
+
 def all_friends_occupied(agent):
     occupied = [False for i in range(6)]
     for _, comm in list(agent.comms.values()):
